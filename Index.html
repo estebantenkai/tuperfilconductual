@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -443,6 +444,10 @@ html, body {
           <label class="tk-label" for="input-nombre">Tu nombre</label>
           <input type="text" id="input-nombre" placeholder="Nombre y apellido"
             style="width:100%; margin-top:8px; padding:12px 14px; border-radius:10px; border:1.5px solid var(--tk-border); font-family:var(--tk-font); font-size:14px;">
+
+          <label class="tk-label" for="input-pais" style="display:block; margin-top:16px;">País de residencia</label>
+          <input type="text" id="input-pais" placeholder="Ej: Argentina, México, España..."
+            style="width:100%; margin-top:8px; padding:12px 14px; border-radius:10px; border:1.5px solid var(--tk-border); font-family:var(--tk-font); font-size:14px;">
         </div>
 
         <div class="tk-actions tk-actions-end">
@@ -526,7 +531,8 @@ html, body {
       <div class="tk-wrap tk-section">
         <span class="tk-super">Tu resultado</span>
         <h2 class="tk-h1" style="margin-top:10px;">Un primer vistazo a tu perfil</h2>
-        <p class="tk-label" id="mini-reporte-tiempo" style="margin-top:6px;"></p>
+        <p class="tk-label" id="mini-reporte-nombre-pais" style="margin-top:8px;"></p>
+        <p class="tk-label" id="mini-reporte-tiempo" style="margin-top:4px;"></p>
         <div id="mini-reporte-alerta-tiempo" style="display:none;"></div>
         <p class="tk-body" id="mini-reporte-resumen" style="margin-top:14px;"></p>
 
@@ -796,6 +802,7 @@ function tkFormatearDuracion(segundos) {
   var state = {
     step: "intro",
     nombre: "",
+    pais: "",
     seleccionNatural: [],
     seleccionAdaptado: [],
     inicioMs: null,      // timestamp de cuando arrancó el ejercicio (paso natural)
@@ -919,6 +926,14 @@ function tkFormatearDuracion(segundos) {
 
   // ---------- Mini-reporte ----------
   function renderMiniReporte() {
+    var nombrePaisEl = document.getElementById("mini-reporte-nombre-pais");
+    if (nombrePaisEl) {
+      var partes = [];
+      if (state.nombre) partes.push(state.nombre);
+      if (state.pais) partes.push(state.pais);
+      nombrePaisEl.textContent = partes.length ? partes.join(" · ") : "";
+    }
+
     var resNatural = tkCalcularEjes(state.seleccionNatural);
     var resAdaptado = tkCalcularEjes(state.seleccionAdaptado);
 
@@ -1023,6 +1038,10 @@ function tkFormatearDuracion(segundos) {
 
     var html = ''
       + '<div class="tk-detalle-tecnico-eje">'
+      + '  <span class="tk-detalle-tecnico-eje-nombre">NOMBRE Y PAÍS</span>'
+      + '  <p class="tk-detalle-tecnico-palabras">' + (state.nombre || "—") + (state.pais ? " · " + state.pais : "") + '</p>'
+      + '</div>'
+      + '<div class="tk-detalle-tecnico-eje">'
       + '  <span class="tk-detalle-tecnico-eje-nombre">PERFIL NATURAL (' + palabrasNatural.length + ' palabras)</span>'
       + '  <p class="tk-detalle-tecnico-palabras">' + listaTexto(palabrasNatural) + '</p>'
       + '</div>'
@@ -1053,7 +1072,9 @@ function tkFormatearDuracion(segundos) {
     if (btnEmpezar) {
       btnEmpezar.addEventListener("click", function () {
         var nombreInput = document.getElementById("input-nombre");
+        var paisInput = document.getElementById("input-pais");
         state.nombre = nombreInput ? nombreInput.value.trim() : "";
+        state.pais = paisInput ? paisInput.value.trim() : "";
         iniciarTimerSiNoExiste();
         guardarSesion();
         renderGrid("grid-natural", "seleccionNatural");
@@ -1116,9 +1137,11 @@ function tkFormatearDuracion(segundos) {
 
   function reiniciarTodo() {
     limpiarSesion();
-    state = { step: "intro", nombre: "", seleccionNatural: [], seleccionAdaptado: [], inicioMs: null, duracionSeg: null };
+    state = { step: "intro", nombre: "", pais: "", seleccionNatural: [], seleccionAdaptado: [], inicioMs: null, duracionSeg: null };
     var nombreInput = document.getElementById("input-nombre");
+    var paisInput = document.getElementById("input-pais");
     if (nombreInput) nombreInput.value = "";
+    if (paisInput) paisInput.value = "";
     mostrarPaso("intro");
   }
 
